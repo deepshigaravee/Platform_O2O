@@ -1,0 +1,221 @@
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Downloads/o2o-platform (O2O-platform)
+$ git init
+Reinitialized existing Git repository in C:/Users/Admin/Downloads/o2o-platform/.git/
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Downloads/o2o-platform (O2O-platform)
+$ git remote add origin https://github.com/deepshigaravee/Platform_O2O.git
+error: remote origin already exists.
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Downloads/o2o-platform (O2O-platform)
+$ git remote -v
+origin  https://github.com/deepshigaravee/Platform_O2O.git (fetch)
+origin  https://github.com/deepshigaravee/Platform_O2O.git (push)
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Downloads/o2o-platform (O2O-platform)
+$ git add .
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Downloads/o2o-platform (O2O-platform)
+$ git commit -m "Added project from downloads folder"
+On branch O2O-platform
+nothing to commit, working tree clean
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Downloads/o2o-platform (O2O-platform)
+$ git checkout -b O2O-platform
+fatal: a branch named 'O2O-platform' already exists
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Downloads/o2o-platform (O2O-platform)
+$ git checkout -b O2O-platform-01
+Switched to a new branch 'O2O-platform-01'
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Downloads/o2o-platform (O2O-platform-01)
+$ git push -u origin O2O-platform-01
+Enumerating objects: 70, done.
+Counting objects: 100% (70/70), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (59/59), done.
+Writing objects: 100% (70/70), 22.42 KiB | 883.00 KiB/s, done.
+Total 70 (delta 14), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (14/14), done.
+remote:
+remote: Create a pull request for 'O2O-platform-01' on GitHub by visiting:
+remote:      https://github.com/deepshigaravee/Platform_O2O/pull/new/O2O-platform-01
+remote:
+To https://github.com/deepshigaravee/Platform_O2O.git
+ * [new branch]      O2O-platform-01 -> O2O-platform-01
+branch 'O2O-platform-01' set up to track 'origin/O2O-platform-01'.
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Downloads/o2o-platform (O2O-platform-01)
+$
+-----------------------------------------------------------------------------------------------------
+Admin@DESKTOP-DEEPU07 MINGW64 ~
+$ git config --global user.name "deepshigaravee"
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~
+$ git config --global user.email "Deepshiga.LNU@cognizant.com"
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~
+$ git config --global --list
+user.name=deepshigaravee
+user.email=Deepshiga.LNU@cognizant.com
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~
+$ git clone https://github.com/deepshigaravee/Platform_O2O.git
+Cloning into 'Platform_O2O'...
+remote: Enumerating objects: 29, done.
+remote: Counting objects: 100% (29/29), done.
+remote: Compressing objects: 100% (19/19), done.
+remote: Total 29 (delta 1), reused 24 (delta 0), pack-reused 0 (from 0)
+Receiving objects: 100% (29/29), 18.46 KiB | 2.64 MiB/s, done.
+Resolving deltas: 100% (1/1), done.
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~
+$ cd REPOSITORY
+bash: cd: REPOSITORY: No such file or directory
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~
+$ ls
+'3D Objects'/
+ AppData/
+'Application Data'@
+ Contacts/
+ Cookies@
+ Documents/
+ Downloads/
+ Favorites/
+ IntelGraphicsProfiles/
+ Links/
+'Local Settings'@
+ Music/
+'My Documents'@
+ NTUSER.DAT
+ NTUSER.DAT{13554dd2-81de-11f0-bcd0-a8a9b7e12d73}.TM.blf
+ NTUSER.DAT{13554dd2-81de-11f0-bcd0-a8a9b7e12d73}.TMContainer00000000000000000001.regtrans-ms
+ NTUSER.DAT{13554dd2-81de-11f0-bcd0-a8a9b7e12d73}.TMContainer00000000000000000002.regtrans-ms
+ NetHood@
+ OneDrive/
+ Platform_O2O/
+ PrintHood@
+ Recent@
+'Saved Games'/
+ Searches/
+ SendTo@
+'Start Menu'@
+ Templates@
+ Videos/
+'VirtualBox VMs'/
+ ntuser.dat.LOG1
+ ntuser.dat.LOG2
+ ntuser.ini
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~
+$ git checkout main
+fatal: not a git repository (or any of the parent directories): .git
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~
+$ cd "C:\Users\Admin\Platform_O2O"
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Platform_O2O (main)
+$ ls
+mvnw*  mvnw.cmd  pom.xml  src/
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Platform_O2O (main)
+$ git checkout main
+Already on 'main'
+Your branch is up to date with 'origin/main'.
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Platform_O2O (main)
+$ rm -rf *
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Platform_O2O (main)
+$ del /s /q *
+bash: del: command not found
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Platform_O2O (main)
+$ git rm -r
+fatal: No pathspec was given. Which files should I remove?
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Platform_O2O (main)
+$ git rm -rf *
+rm '.gitattributes'
+rm '.gitignore'
+rm '.mvn/wrapper/maven-wrapper.properties'
+rm 'mvnw'
+rm 'mvnw.cmd'
+rm 'pom.xml'
+rm 'src/main/java/com/o2o/o2o_store_platform/O2oStorePlatformApplication.java'
+rm 'src/main/resources/application.properties'
+rm 'src/test/java/com/o2o/o2o_store_platform/O2oStorePlatformApplicationTests.java'
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Platform_O2O (main)
+$ git commit -m "Removed all files from main branch"
+[main ae44952] Removed all files from main branch
+ 9 files changed, 660 deletions(-)
+ delete mode 100644 .gitattributes
+ delete mode 100644 .gitignore
+ delete mode 100644 .mvn/wrapper/maven-wrapper.properties
+ delete mode 100644 mvnw
+ delete mode 100644 mvnw.cmd
+ delete mode 100644 pom.xml
+ delete mode 100644 src/main/java/com/o2o/o2o_store_platform/O2oStorePlatformApplication.java
+ delete mode 100644 src/main/resources/application.properties
+ delete mode 100644 src/test/java/com/o2o/o2o_store_platform/O2oStorePlatformApplicationTests.java
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Platform_O2O (main)
+$ git push origin main
+info: please complete authentication in your browser...
+Enumerating objects: 3, done.
+Counting objects: 100% (3/3), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (1/1), done.
+Writing objects: 100% (2/2), 225 bytes | 225.00 KiB/s, done.
+Total 2 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+To https://github.com/deepshigaravee/Platform_O2O.git
+   0978745..ae44952  main -> main
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Platform_O2O (main)
+$ cd
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~
+$ ls
+'3D Objects'/
+ AppData/
+'Application Data'@
+ Contacts/
+ Cookies@
+ Documents/
+ Downloads/
+ Favorites/
+ IntelGraphicsProfiles/
+ Links/
+'Local Settings'@
+ Music/
+'My Documents'@
+ NTUSER.DAT
+ NTUSER.DAT{13554dd2-81de-11f0-bcd0-a8a9b7e12d73}.TM.blf
+ NTUSER.DAT{13554dd2-81de-11f0-bcd0-a8a9b7e12d73}.TMContainer00000000000000000001.regtrans-ms
+ NTUSER.DAT{13554dd2-81de-11f0-bcd0-a8a9b7e12d73}.TMContainer00000000000000000002.regtrans-ms
+ NetHood@
+ OneDrive/
+ Platform_O2O/
+ PrintHood@
+ Recent@
+'Saved Games'/
+ Searches/
+ SendTo@
+'Start Menu'@
+ Templates@
+ Videos/
+'VirtualBox VMs'/
+ ntuser.dat.LOG1
+ ntuser.dat.LOG2
+ ntuser.ini
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~
+$ cd "C:\Users\Admin\Platform_O2O"
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Platform_O2O (main)
+$ ls
+
+Admin@DESKTOP-DEEPU07 MINGW64 ~/Platform_O2O (main)
+$ cd "C:\Users\Admin\Downloads\o2o-platform"
+
