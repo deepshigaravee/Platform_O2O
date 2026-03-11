@@ -1,0 +1,233 @@
+# Comprehensive 6-Table Production Database Schema
+
+To keep the database concise while retaining all the critical functionality (variants, inventory, order amounts) from the expanded 11-table schema, I have flattened the necessary columns into the main 6 tables. For example, `Products` now directly tracks its `size`, `color`, and `image_url` instead of needing separate join tables, and `Orders` directly tracks the `advance_amount`.
+
+---
+
+## 1. Entity-Relationship (ER) Diagram
+
+```mermaid
+erDiagram
+    USERS ||--o{ STORES : "manages (owner_id)"
+    USERS ||--o{ ORDERS : "places (user_id)"
+    USERS ||--o{ PAYMENTS : "makes (user_id)"
+    
+    STORES ||--o{ PRODUCTS : "sells catalog items (store_id)"
+    STORES ||--o{ ORDERS : "receives (store_id)"
+    
+    PRODUCTS ||--o{ ORDERS : "pre-ordered item (product_id)"
+    
+    ORDERS ||--o{ PAYMENTS : "paid via (order_id)"
+    
+    ADMINS : "System Administrators"
+```
+
+---
+
+## 2. Detailed Column Lists & Table Dictionary
+
+### 1. `users` Table
+Handles authenticating normal customers and store owners. Location added for proximity search.
+| Column Name | Type | Key | Remarks |
+|---|---|---|---|
+| `user_id` | INT | **PK** | Auto-incremented unique ID |
+| `name` | VARCHAR(100) | | Full name |
+| `email` | VARCHAR(100) | Unique | Used for login |
+| `phone` | VARCHAR(20) | | Contact number |
+| `password_hash` | VARCHAR(255) | | Encrypted password string |
+| `role` | ENUM | | `CUSTOMER` or `STORE_OWNER` |
+| `latitude` | DECIMAL(10,8) | | GPS location (up to 8 decimal precision) |
+| `longitude` | DECIMAL(11,8) | | GPS location (up to 8 decimal precision) |
+| `created_at` | TIMESTAMP | | Record insertion time |
+
+### 2. `stores` Table
+Owned by users. The flattened table absorbs specific address breakdown, operating hours, and cover images from the 11-table spec.
+| Column Name | Type | Key | Remarks |
+|---|---|---|---|
+| `store_id` | INT | **PK** | Auto-incremented unique ID |
+| `owner_id` | INT | **FK** | References `users(user_id)` |
+| `store_name` | VARCHAR(150) | | Registered business name |
+| `description` | TEXT | | Details about the shop |
+| `address_line1` | VARCHAR(200) | | Primary location data |
+| `city` | VARCHAR(100) | | Searchable city |
+| `state` | VARCHAR(100) | | Regional boundary |
+| `pincode` | VARCHAR(10) | | Postal code |
+| `contact_number` | VARCHAR(20) | | Store's direct line |
+| `opening_time` | TIME | | Normal daily shift start |
+| `closing_time` | TIME | | Normal daily shift end |
+| `latitude` | DECIMAL(10,8) | | Store GPS for 5km Haversine math |
+| `longitude` | DECIMAL(11,8) | | Store GPS |
+| `image_url` | VARCHAR(255) | | Cover photo for the storefront |
+| `is_active` | BOOLEAN | | Is the store currently open for business? (Default: TRUE) |
+| `created_at` | TIMESTAMP | | Record insertion time |
+
+### 3. `products` Table
+Inventory items. By removing the variants / images / category tables, we store the sku, size, color, string category, and stock quantity directly inside the product row.
+| Column Name | Type | Key | Remarks |
+|---|---|---|---|
+| `product_id` | INT | **PK** | Auto-incremented unique ID |
+| `store_id` | INT | **FK** | References `stores(store_id)` |
+| `product_name` | VARCHAR(150) | | Clothing title |
+| `brand` | VARCHAR(100) | | Brand identity |
+| `category` | VARCHAR(100) | | E.g. "Men's Tops", "Shoes" |
+| `size` | VARCHAR(10) | | Absorbed from variants e.g. "XL", "M", "42" |
+| `color` | VARCHAR(50) | | Absorbed from variants e.g. "Navy Blue" |
+| `sku` | VARCHAR(100) | Unique | Stock Keeping Unit |
+| `price` | DECIMAL(10,2) | | Full price of the item |
+| `quantity` | INT | | Available stock (Absorbed from `inventory`) |
+| `description` | TEXT | | Product details |
+| `image_url` | VARCHAR(255) | | Primary product photo (Absorbed from `images`) |
+| `is_active` | BOOLEAN | | (Default: TRUE) |
+| `created_at` | TIMESTAMP | | Record insertion time |
+
+### 4. `orders` Table
+Captures pre-orders. By flattening `order_items`, an order assumes the purchase of a single type of `product_id`, capturing the price splitting directly.
+| Column Name | Type | Key | Remarks |
+|---|---|---|---|
+| `order_id` | INT | **PK** | Auto-incremented unique ID |
+| `user_id` | INT | **FK** | The customer: References `users(user_id)` |
+| `store_id` | INT | **FK** | The physical store: References `stores(store_id)` |
+| `product_id` | INT | **FK** | The preordered item: References `products(product_id)` |
+| `quantity` | INT | | How many of this product are they reserving? |
+| `total_amount` | DECIMAL(10,2)| | Full checkout value `(price * quantity)` |
+| `advance_amount`| DECIMAL(10,2)| | The required 20% down payment |
+| `balance_amount`| DECIMAL(10,2)| | What remains to be paid at the physical store |
+| `order_status` | ENUM | | `PENDING`, `RESERVED` (advance paid), `COMPLETED` (picked up), `CANCELLED` |
+| `payment_status`| ENUM | | `PENDING`, `PARTIAL` (advance paid), `PAID` (balance cleared) |
+| `order_date` | TIMESTAMP | | When the preorder was initiated |
+| `notes` | TEXT | | Customer requests ("Will arrive by 6 PM")|
+
+### 5. `payments` Table
+Captures the financial transaction data for the 20% advance or the settlement.
+| Column Name | Type | Key | Remarks |
+|---|---|---|---|
+| `payment_id` | INT | **PK** | Auto-incremented unique ID |
+| `order_id` | INT | **FK** | References `orders(order_id)` |
+| `user_id` | INT | **FK** | References `users(user_id)` |
+| `amount` | DECIMAL(10,2) | | Exact money transferred |
+| `payment_method`| ENUM | | `CARD`, `UPI`, `NET_BANKING`, `CASH` (at store) |
+| `type` | ENUM | | `ADVANCE` (the initial 20%), `SETTLEMENT` (the final 80%) |
+| `status` | ENUM | | `SUCCESS`, `FAILED`, `PENDING` |
+| `gateway_ref_id`| VARCHAR(150) | | Receipt ID from Razorpay / Stripe etc. |
+| `payment_date` | TIMESTAMP | | When funds cleared |
+
+### 6. `admins` Table
+Distinct table for top-level MNC platform management safely separated from `users`.
+| Column Name | Type | Key | Remarks |
+|---|---|---|---|
+| `admin_id` | INT | **PK** | Auto-incremented unique ID |
+| `name` | VARCHAR(100) | | Full name of admin |
+| `email` | VARCHAR(100) | Unique | Secure login |
+| `password_hash` | VARCHAR(255) | | Encrypted password |
+| `role` | ENUM | | `SUPER_ADMIN`, `MODERATOR` |
+| `created_at` | TIMESTAMP | | Record insertion time |
+
+---
+
+## 3. Production Grade SQL DDL Script
+
+```sql
+CREATE TABLE users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone VARCHAR(20),
+    password_hash VARCHAR(255) NOT NULL,
+    role ENUM('CUSTOMER', 'STORE_OWNER') NOT NULL DEFAULT 'CUSTOMER',
+    latitude DECIMAL(10,8),
+    longitude DECIMAL(11,8),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_user_email (email),
+    INDEX idx_user_role (role)
+);
+
+CREATE TABLE stores (
+    store_id INT PRIMARY KEY AUTO_INCREMENT,
+    owner_id INT NOT NULL,
+    store_name VARCHAR(150) NOT NULL,
+    description TEXT,
+    address_line1 VARCHAR(200) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    state VARCHAR(100) NOT NULL,
+    pincode VARCHAR(10) NOT NULL,
+    contact_number VARCHAR(20),
+    opening_time TIME,
+    closing_time TIME,
+    latitude DECIMAL(10,8) NOT NULL,
+    longitude DECIMAL(11,8) NOT NULL,
+    image_url VARCHAR(255),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (owner_id) REFERENCES users(user_id) ON DELETE RESTRICT,
+    INDEX idx_store_location (latitude, longitude)
+);
+
+CREATE TABLE products (
+    product_id INT PRIMARY KEY AUTO_INCREMENT,
+    store_id INT NOT NULL,
+    product_name VARCHAR(150) NOT NULL,
+    brand VARCHAR(100),
+    category VARCHAR(100) NOT NULL,
+    size VARCHAR(10),
+    color VARCHAR(50),
+    sku VARCHAR(100) UNIQUE,
+    price DECIMAL(10,2) NOT NULL,
+    quantity INT NOT NULL DEFAULT 0,
+    description TEXT,
+    image_url VARCHAR(255),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (store_id) REFERENCES stores(store_id) ON DELETE CASCADE,
+    INDEX idx_product_store (store_id)
+);
+
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    store_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL DEFAULT 1,
+    total_amount DECIMAL(10,2) NOT NULL,
+    advance_amount DECIMAL(10,2) NOT NULL,
+    balance_amount DECIMAL(10,2) NOT NULL,
+    order_status ENUM('PENDING', 'RESERVED', 'COMPLETED', 'CANCELLED') NOT NULL DEFAULT 'PENDING',
+    payment_status ENUM('PENDING', 'PARTIAL', 'PAID') NOT NULL DEFAULT 'PENDING',
+    notes TEXT,
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE RESTRICT,
+    FOREIGN KEY (store_id) REFERENCES stores(store_id) ON DELETE RESTRICT,
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE RESTRICT,
+    
+    INDEX idx_order_user (user_id),
+    INDEX idx_order_store (store_id)
+);
+
+CREATE TABLE payments (
+    payment_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT NOT NULL,
+    user_id INT NOT NULL,
+    gateway_ref_id VARCHAR(150),
+    amount DECIMAL(10,2) NOT NULL,
+    payment_method ENUM('CARD', 'UPI', 'NET_BANKING', 'CASH') NOT NULL,
+    type ENUM('ADVANCE', 'SETTLEMENT', 'REFUND') NOT NULL,
+    status ENUM('SUCCESS', 'FAILED', 'PENDING') NOT NULL DEFAULT 'PENDING',
+    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE RESTRICT,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE admins (
+    admin_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role ENUM('SUPER_ADMIN', 'MODERATOR') NOT NULL DEFAULT 'MODERATOR',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_admin_email (email)
+);
+```
